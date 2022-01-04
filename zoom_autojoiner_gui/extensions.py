@@ -45,8 +45,9 @@ class ExtensionHandler():
         self.basic_config = config
         self.config = ConfigParser()
 
-        real_path = os.path.realpath(__file__)
-        dir_path = os.path.dirname(real_path)
+        # real_path = os.path.realpath(__file__)
+        # dir_path = os.path.dirname(real_path)
+        dir_path = '' # not package path -- makes more sense
         
         logger.debug("DIR path %s" % dir_path)
 
@@ -226,6 +227,19 @@ class ExtensionHandler():
                 all_ext_ran = False
 
         return all_ext_ran
+    
+class ExtensionAPI():
+    """ExtensionAPI
+    
+    The Extension API object can be used for:
+    1. Adding new Autojoiners
+
+    Args:
+        name (str): Name or the extension as in __name__.
+    """
+    extension_handle = None
+    def __init__(self, name: str) -> None:
+        pass
 
 
 def load_extensions():

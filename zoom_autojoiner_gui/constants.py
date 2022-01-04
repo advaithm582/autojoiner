@@ -1,4 +1,26 @@
-import json, logging, configparser
+# This file is part of Zoom Autojoiner GUI.
+
+# Zoom Autojoiner GUI is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# Zoom Autojoiner GUI is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with Zoom Autojoiner GUI.  If not, see <https://www.gnu.org/licenses/>.
+
+"""Configuration Constants
+
+This file reads run-time config constants.
+"""
+
+import json
+import logging
+import configparser
 
 logger = logging.getLogger(__name__)
 try:
@@ -36,91 +58,3 @@ except Exception as e:
     exit(1)
 else:
     logger.info("Config loaded.")
-
-# from datetime import datetime
-
-# # Theme
-# COLOR_SCHEME = {
-#     "title" : {
-#         "fg" : "black",
-#         "bg" : None,
-#         "font" : {
-#             "name" : "Calibri",
-#             "size" : "20",
-#             "style" : "bold"
-#         },
-#         "padding" : {
-#             "x" : "5",
-#             "y" : "5"
-#         },
-#         "border" : {
-#             "width" : None,
-#             "relief" : None
-#         }
-#     },
-#     "header" : {
-#         "fg" : "white",
-#         "bg" : "#142E54",
-#         "font" : {
-#             "name" : "Calibri",
-#             "size" : "12",
-#             "style" : "bold"
-#         },
-#         "padding" : {
-#             "x" : "5",
-#             "y" : "5"
-#         },
-#         "border" : {
-#             "width" : 2,
-#             "relief" : "groove"
-#         }
-#     },
-#     "content" : {
-#         "fg" : "black",
-#         "bg" : "white",
-#         "font" : {
-#             "name" : "Calibri",
-#             "size" : "12",
-#             "style" : ""
-#         },
-#         "padding" : {
-#             "x" : "5",
-#             "y" : "5"
-#         },
-#         "border" : {
-#             "width" : 2,
-#             "relief" : "groove"
-#         }
-#     },
-#     "button" : {
-#         "fg" : "black",
-#         "bg" : "#cccccc",
-#         "font" : {
-#             "name" : "Serif",
-#             "size" : "10",
-#             "style" : ""
-#         },
-#         "padding" : {
-#             "x" : "5",
-#             "y" : "5"
-#         },
-#         "border" : {
-#             "width" : 1,
-#             "relief" : "solid"
-#         }
-#     },
-#     "entry" : {
-#         "fg" : "black",
-#         "bg" : "white",
-#         "font" : {
-#             "name" : "Serif",
-#             "size" : "10",
-#             "style" : ""
-#         },
-#         "border" : {
-#             "width" : 1,
-#             "relief" : "solid"
-#         }
-#     }
-# }
-# logging.basicConfig(filename='logs/%s.log' % (datetime.now().strftime("%Y%m%d-%H%M%S")), filemode='w', format='[%(asctime)s] [%(name)s:%(levelname)s] [pid:%(process)d, tid:%(thread)d] %(message)s', datefmt='%c', level=logging.INFO)
