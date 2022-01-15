@@ -345,7 +345,7 @@ class ATLParser():
     """
     AuTomation Language (ATL) parser
 
-    This class parses ATL code, wj=hick ends in the file extension
+    This class parses ATL code, which ends in the file extension
     .atl. These are simple JSON files. For the format, see 
     specification.atl in the 'scripts' folder.
 

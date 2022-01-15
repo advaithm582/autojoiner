@@ -127,13 +127,14 @@ class ApplicationMenuBar(tk.Menu):
             main_menu: 
                 This list contains the menu to be made in the below
                 format.
-                [
-                    ["Main Menu", [
-                        ["SubItem", Command, shortcut key, command],
-                        ["SubItem2", COmmand, shortcut key],
+                ::
+                    [
+                        ["Main Menu", [
+                            ["SubItem", Command, shortcut key, command],
+                            ["SubItem2", COmmand, shortcut key],
+                            ],
                         ],
-                    ],
-                ]
+                    ]
         """
         for menu_item in main_menu:
             menu = tk.Menu(self, tearoff = "off") # Init menu
