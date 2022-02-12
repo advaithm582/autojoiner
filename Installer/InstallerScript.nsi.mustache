@@ -1,0 +1,276 @@
+;NSIS Modern User Interface
+;Welcome/Finish Page Example Script
+;Written by Joost Verburg
+
+;--------------------------------
+;Include Modern UI
+
+  !include "MUI2.nsh"
+
+;--------------------------------
+;General
+
+  ; Vars in prog
+  !define APPNAME "Zoom Autojoiner GUI"
+  !define COMPANYNAME "AMSDC"
+  !define DESCRIPTION "To join Zoom Meetings quickly"
+  # These three must be integers
+  !define VERSIONMAJOR {{{versionmajor}}}
+  !define VERSIONMINOR {{{versionminor}}}
+  !define VERSIONBUILD {{{versionbuild}}}
+  !define HELPURL "{{{url}}}" # "Support Information" link
+  !define UPDATEURL "{{{url}}}" # "Product Updates" link
+  !define ABOUTURL "{{{url}}}" # "Publisher" link
+  # This is the size (in kB) of all the files copied into "Program Files"
+  !define INSTALLSIZE 1034
+
+  ; !define SOURCEDIR "{{{source_directory}}}"
+  # EXE file name w/o .exe
+  !define LAUNCHEREXE "{{{launcher_exe}}}"
+  ; use ${LAUNCHEREXE}
+  ;Name and file
+  Name "${APPNAME}"
+  OutFile "${COMPANYNAME}_${APPNAME}_${VERSIONMAJOR}_${VERSIONMINOR}_${VERSIONBUILD}.exe"
+  Unicode True
+
+  ;Default installation folder
+  InstallDir "$LOCALAPPDATA\${APPNAME}"
+
+  ;Get installation folder from registry if available
+  InstallDirRegKey HKCU "Software\${APPNAME}" ""
+
+  ;Request application privileges for Windows Vista
+  RequestExecutionLevel user
+
+  ; Tell NSIS to use current user directory
+  ; SetShellVarContext current
+  
+
+;--------------------------------
+;Interface Settings
+  BrandingText "${COMPANYNAME} ${APPNAME} ${VERSIONMAJOR}.${VERSIONMINOR}.${VERSIONBUILD}"
+
+  !define MUI_ABORTWARNING
+  !define MUI_ICON "{{{source_directory}}}\{{{icon_file}}}"
+  !define MUI_UNICON "{{{source_directory}}}\{{{icon_file}}}"
+
+;--------------------------------
+;Pages
+  Var SMDir ; start menu
+
+  !insertmacro MUI_PAGE_WELCOME
+  !define MUI_LICENSEPAGE_RADIOBUTTONS
+  !insertmacro MUI_PAGE_LICENSE "{{{license_file}}}"
+  !insertmacro MUI_PAGE_COMPONENTS
+  !insertmacro MUI_PAGE_DIRECTORY
+  !insertmacro MUI_PAGE_STARTMENU 0 $SMDir
+  !insertmacro MUI_PAGE_INSTFILES
+  !insertmacro MUI_PAGE_FINISH
+
+  !insertmacro MUI_UNPAGE_WELCOME
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_INSTFILES
+  !insertmacro MUI_UNPAGE_FINISH
+
+  
+
+;--------------------------------
+;Languages
+
+  !insertmacro MUI_LANGUAGE "English"
+
+;--------------------------------
+;Installer Sections
+; Uninstall current version
+Function UninstallPrevious
+
+    ; Check for uninstaller.
+    ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "QuietUninstallString"
+
+    ${If} $R0 == ""        
+        Goto Done
+    ${EndIf}
+
+    DetailPrint "Removing previous installation."    
+
+    ; Run the uninstaller silently.
+    ExecWait '$R0'
+
+    Done:
+
+FunctionEnd
+
+Section "-UninstallPrevVer" SecUninstallPrevious
+  Call UninstallPrevious
+SectionEnd
+
+Section "Core Files" SecCoreFiles
+  SectionIn RO
+
+  SetOutPath "$INSTDIR"
+
+  ;ADD YOUR OWN FILES HERE...
+  {{#dirs}}
+  CreateDirectory "$INSTDIR\{{{dir_name}}}"
+  {{/dirs}}
+  {{#files}}
+  File "/oname=$INSTDIR\{{{file_name}}}" "{{{source_directory}}}\{{{file_name}}}"
+  {{/files}}
+  {{#spdirs}}
+  CreateDirectory "$INSTDIR\{{{dir_name}}}"
+  {{/spdirs}}
+  {{! File /oname="$INSTDIR\${LAUNCHEREXE}.exe" "${SOURCEDIR}\${LAUNCHEREXE}.exe" }}
+  ;Store installation folder
+  WriteRegStr HKCU "Software\${APPNAME}" "" $INSTDIR
+
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${COMPANYNAME} ${APPNAME}"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "InstallLocation" "$\"$INSTDIR$\""
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$\"$INSTDIR\{{{icon_file}}}$\""
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "Publisher" "${COMPANYNAME}"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "HelpLink" "${HELPURL}"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "URLUpdateInfo" "${UPDATEURL}"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "URLInfoAbout" "${ABOUTURL}"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayVersion" "${VERSIONMAJOR}.${VERSIONMINOR}.${VERSIONBUILD}"
+	WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "VersionMajor" ${VERSIONMAJOR}
+	WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "VersionMinor" ${VERSIONMINOR}
+	# There is no option for modifying or repairing the install
+	WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "NoModify" 1
+	WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "NoRepair" 1
+	# Set the INSTALLSIZE constant (!defined at the top of this script) so Add/Remove Programs can accurately report the size
+	WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "EstimatedSize" ${INSTALLSIZE}
+
+  ;Create uninstaller
+  WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+SectionEnd
+;Section "fileappassn32" SecDummy2
+;  SetOutPath "$INSTDIR"
+;  file "C:\Users\Kannu_Study\Documents\NSIS\fileappassn32.exe"
+;  file "C:\Users\Kannu_Study\Documents\NSIS\picview.exe"
+
+;SectionEnd
+; Section "Start Menu Shortcut" SecDummy3
+;   SetOutPath "$SMPROGRAMS\${COMPANYNAME}"
+;   createDirectory "$SMPROGRAMS\${COMPANYNAME}"
+;   createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$INSTDIR\gmeetwin.exe" "" "$INSTDIR\{{{icon_file}}}"
+; SectionEnd
+
+; Section /o "Desktop Shortcut" SecDummy4
+;   ;SetOutPath "$DESKTOP"
+;   ;createDirectory "$SMPROGRAMS\${COMPANYNAME}"
+;   createShortCut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\${LAUNCHEREXE}.exe" "" "$INSTDIR\{{{icon_file}}}"
+; SectionEnd
+{{! Section /o "Updater" SecUpdater
+  SetOutPath "$INSTDIR"
+  file "C:\Users\Advaith\OneDrive\Documents\Google Meet\Client\v1.0.0\Update.exe"
+SectionEnd }}
+
+SectionGroup /e "Themes" SecGrpThemes
+  Section "Light" SecLight
+    SetOutPath "$INSTDIR"
+    File "/oname=$INSTDIR\themes\light.thm.json" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\themes\default.thm.json"
+  SectionEnd
+  Section /o "Dark" SecDark
+    SetOutPath "$INSTDIR"
+    File "/oname=$INSTDIR\themes\dark.thm.json" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\themes\dark.thm.json"
+  SectionEnd
+SectionGroupEnd
+
+
+Section "Configuration Tool" SecCfgTool
+  SetOutPath "$INSTDIR"
+  File "/oname=$INSTDIR\config\application-default.ini.mustache" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\config_tool\dist\config\application-default.ini.mustache"
+  File "/oname=$INSTDIR\config\extensions.ini" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\config_tool\extensions-default.ini"
+  File "/oname=$INSTDIR\config_tool.exe" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\config_tool\dist\config_tool.exe"
+  ExecWait '"$INSTDIR\config_tool.exe" "$INSTDIR\config"'
+SectionEnd
+
+
+
+; Start Menu
+
+Section -StartMenu
+SetShellVarContext current
+!insertmacro MUI_STARTMENU_WRITE_BEGIN 0 ;This macro sets $SMDir and skips to MUI_STARTMENU_WRITE_END if the "Don't create shortcuts" checkbox is checked... 
+CreateDirectory "$SMPrograms\$SMDir"
+CreateShortCut "$SMPROGRAMS\$SMDir\${APPNAME}.lnk" "$INSTDIR\${LAUNCHEREXE}.exe" "" "$INSTDIR\{{{icon_file}}}"
+!insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+;--------------------------------
+;Descriptions
+
+  ;Language strings
+  LangString DESC_SecCoreFiles ${LANG_ENGLISH} "Installs ${APPNAME} on your system"
+  LangString DESC_SecCfgTool ${LANG_ENGLISH} "Adds a simple configurarion tool to generate config files"
+  LangString DESC_SecGrpThemes ${LANG_ENGLISH} "Themes for ${APPNAME}"
+  LangString DESC_SecLight ${LANG_ENGLISH} "Light theme for ${APPNAME}"
+  LangString DESC_SecDark ${LANG_ENGLISH} "Dark theme for ${APPNAME}"
+  ;LangString DESC_SecUpdater ${LANG_ENGLISH} "Installs the Update Daemon on your system to enable faster uptates using the AMSDC API."
+  ;Assign language strings to sections
+  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecCoreFiles} $(DESC_SecCoreFiles)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecCfgTool} $(DESC_SecCfgTool)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecGrpThemes} $(DESC_SecGrpThemes)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecLight} $(DESC_SecLight)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecDark} $(DESC_SecDark)
+    ;!insertmacro MUI_DESCRIPTION_TEXT ${SecDummy2} $(DESC_SecDummy2)
+    ;!insertmacro MUI_DESCRIPTION_TEXT ${SecUpdater} $(DESC_SecUpdater)
+  !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+;--------------------------------
+;Uninstaller Section
+
+Section "Uninstall"
+  SetShellVarContext current
+
+  ;ADD YOUR OWN FILES HERE...
+  ;!insertmacro MUI_STARTMENU_GETFOLDER Application "GlobalSpectrum"
+
+  Delete "$SMPrograms\$SMDir\${APPNAME}.lnk"
+  RMDir "$SMPrograms\$SMDir"
+  
+  ;Delete "$DESKTOP\${APPNAME}.lnk"
+
+  ;uninst
+  {{! RMDir /r "$INSTDIR\gmeetwin.exe.WebView2"
+  Delete "$INSTDIR\${LAUNCHEREXE}.exe"
+  Delete "$INSTDIR\Update.exe"
+  Delete "$INSTDIR\lvmem.csv"
+  Delete "$INSTDIR\Microsoft.Web.WebView2.Core.dll"
+  Delete "$INSTDIR\Microsoft.Web.WebView2.Core.xml"
+  Delete "$INSTDIR\Microsoft.Web.WebView2.WinForms.dll"
+  Delete "$INSTDIR\Microsoft.Web.WebView2.WinForms.xml"
+  Delete "$INSTDIR\Microsoft.Web.WebView2.Wpf.dll"
+  Delete "$INSTDIR\Microsoft.Web.WebView2.Wpf.xml"
+  Delete "$INSTDIR\WebView2Loader.dll"
+  Delete "$INSTDIR\app.ico" }}
+  {{#files}}
+  Delete "$INSTDIR\{{{file_name}}}"
+  {{/files}}
+  ;Delete "$INSTDIR\database.db"
+  ;Delete "$INSTDIR\config_tool.exe"
+
+  {{#spdel}}
+  Delete "$INSTDIR\{{{file_name}}}"
+  {{/spdel}}
+
+  {{#dirs}}
+  RMDir /r "$INSTDIR\{{{dir_name}}}"
+  {{/dirs}}
+
+  {{#spdirs}}
+  RMDir /r "$INSTDIR\{{{dir_name}}}"
+  {{/spdirs}}
+  
+  ;keep last
+  Delete "$INSTDIR\Uninstall.exe"
+  RMDir "$INSTDIR"
+
+  DeleteRegKey /ifempty HKCU "Software\${APPNAME}"
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
+
+
+SectionEnd
