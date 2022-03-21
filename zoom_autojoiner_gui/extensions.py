@@ -1,3 +1,19 @@
+# This file is part of Zoom Autojoiner GUI.
+
+# Zoom Autojoiner GUI is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# Zoom Autojoiner GUI is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with Zoom Autojoiner GUI.  If not, see <https://www.gnu.org/licenses/>.
+
+import typing as t
 import logging
 import sys
 import os
@@ -12,6 +28,7 @@ from configparser import ConfigParser
 #     MeetingListFrame
 # )
 from zoom_autojoiner_gui.constants import EXTENSIONS
+from zoom_autojoiner_gui.views import Autojoiner
 
 
 logger = logging.getLogger(__name__) # This creates logger for this file.
@@ -233,13 +250,61 @@ class ExtensionAPI():
     
     The Extension API object can be used for:
     1. Adding new Autojoiners
+    2. Registering Menus
 
     Args:
-        name (str): Name or the extension as in __name__.
+        codename: Codename
+        name (str): Name of the extension
+        ver: Version string of extension.
     """
-    extension_handle = None
-    def __init__(self, name: str) -> None:
-        pass
+    ext_menu = None
+    main_window = None
+    menu_bar = None
+    meeting_list_frame = None
+
+    #: list: Menus to be registered
+    reg_menus = []
+
+    #: dict: Registered autojoiners
+    # reg_autojoiners = {}
+    
+    def __init__(self, codename: str, name: str, ver: str = "1.0") -> None:
+        self.ext_codename = codename
+        self.ext_name = name
+        self.ext_ver = ver
+
+    def register_menu(self, menu: tk.Menu) -> None:
+        self.reg_menus.append((self.ext_name, menu))
+
+    def register_autojoiner_callback(self, mtg_provider: str,
+                                     callback: t.Callable) -> None:
+        """register_autojoiner_callback
+
+        Register an autojoiner callback with the system.
+        """
+        # self.reg_autojoiners[mtg_provider] = callback
+        Autojoiner.register_autojoiner(mtg_provider, callback)
+
+    @classmethod
+    def set_ext_menu(cls, menu: tk.Menu) -> None:
+        cls.ext_menu = menu
+
+    @classmethod
+    def internal_tkreg_menus(cls) -> None:
+        """internal_tkreg_menus
+
+        Internally used to register method with Tk Menu.
+        """
+        for label, menu in cls.reg_menus:
+            cls.ext_menu.add_cascade(label=label, menu=menu)
+
+    @classmethod
+    def internal_set_tkobj(cls, main_window: tk.Tk = None, 
+            menu_bar: tk.Menu = None, 
+            meeting_list_frame: tk.Frame = None) -> None:
+        cls.main_window = main_window
+        cls.menu_bar = menu_bar
+        cls.meeting_list_frame = meeting_list_frame
 
 
 def load_extensions():

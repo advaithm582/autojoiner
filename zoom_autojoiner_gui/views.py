@@ -40,7 +40,8 @@ from zoom_autojoiner_gui.dialogs import (
 )
 from zoom_autojoiner_gui.extensions import (
     load_extensions,
-    ExtensionHandler
+    ExtensionHandler,
+    ExtensionAPI
 )
 
 
@@ -317,7 +318,8 @@ class MeetingListFrame(tk.Frame):
         return col_no
 
     def create_table_row(self, record_id: int, meeting_time: datetime.datetime,
-                         meeting_id: str, meeting_password: str) -> None:
+                         meeting_id: str, meeting_password: str,
+                         meeting_provider: str) -> None:
         """create_table_row
         
         Creates a row for the table.
@@ -327,6 +329,7 @@ class MeetingListFrame(tk.Frame):
             meeting_time: The time of the meeting.
             meeting_id: The ID of the meeting.
             meeting_password: The meeting password.
+            meeting_provider: The provider of meeting
 
         Returns:
             Nothing.
@@ -338,8 +341,8 @@ class MeetingListFrame(tk.Frame):
         self.create_tk_label(meeting_id, row=row_no, column=1, **styling)
         self.create_tk_label(meeting_password, row=row_no, column=2, **styling)
         self.create_ttk_button("Join meeting", row=row_no, column=3, 
-            command=lambda: self.__autojoiner_handle.join_zm_mtg(meeting_id,
-                meeting_password))
+            command=lambda: self.__autojoiner_handle.join_mtg(meeting_provider,
+                meeting_id, meeting_password))
         self.create_ttk_button("Edit/Delete meeting", row=row_no, column=4, 
             command=lambda: EditMeetingDialog(record_id, tk_root_element = \
                 self.root_element, tk_frame_handle=self))
@@ -356,7 +359,7 @@ class MeetingListFrame(tk.Frame):
             meetings = self.__dbh.get_mtg_data_to_list()
             for mtg in meetings:
                 self.create_table_row(mtg["id"], mtg["mtg_time"], 
-                    mtg["mtg_id"], mtg["mtg_password"])
+                    mtg["mtg_id"], mtg["mtg_password"], mtg["mtg_provider"])
         except Exception as e:
             logger.error("Failed to load meeting data, exiting...", 
                 exc_info=True)
@@ -411,16 +414,24 @@ class ApplicationStatusBar(tk.Label):
         Check for meetings. If there is one now, join.
         Or else just continue.
         """
-        if self.__autojoiner_handle.check_for_meeting():
+        check_mtg = self.__autojoiner_handle.check_for_meeting()
+        if check_mtg:
             logger.info("Status Bar - Meeting now.")
             self["text"] = ("There is a meeting now. Zoom Autojoiner is"
                 " initiating the joining process.")
-            mtg_id = self.__autojoiner_handle.check_for_meeting()["mtg_id"]
-            mtg_pw = self.__autojoiner_handle.check_for_meeting()["mtg_password"]
+            
+            mtg_id = check_mtg["mtg_id"]
+            mtg_pw = check_mtg["mtg_password"]
+            mtg_provider = check_mtg["mtg_provider"]
+            
+            
             self["text"] = ("There is a meeting now. Zoom Autojoiner has "
                 "initiated the joining process.")
             logger.info("Status Bar - Joining Meeting")
-            self.__autojoiner_handle.join_zm_mtg(mtg_id, mtg_pw)
+            
+            # self.__autojoiner_handle.join_zm_mtg(mtg_id, mtg_pw)
+            self.__autojoiner_handle.join_mtg(mtg_provider, mtg_id, mtg_pw)
+            
             self["text"] = ("Zoom Autojoiner has finished the joining "
                 "process. There will be a pause for 60 seconds now.")
             logger.info("Status Bar - Sleeping")
@@ -491,13 +502,23 @@ class MainWindow(tk.Tk):
 
         # load extensions
         if EXTENSIONS.getboolean("enabled"):
-            # if extensions are enabled
+            # New API
+            ext_menu = tk.Menu(self.__menu_bar, tearoff="off")
+            ExtensionAPI.set_ext_menu(ext_menu)
+            ExtensionAPI.internal_set_tkobj(self, self.__menu_bar,
+                    self.__meeting_list_frame)
+
+            # OLD API
             self.__ext_class = ExtensionHandler(EXTENSIONS)
             if self.__ext_class.load_extensions():
                 self.__ext_class.give_extensions_prefs()
                 self.__ext_class.give_extensions_objects(self, self.__menu_bar,
                     self.__meeting_list_frame)
                 self.__ext_class.run_extensions()
+
+            # New API
+            ExtensionAPI.internal_tkreg_menus()
+            self.__menu_bar.add_cascade(label="Extensions", menu=ext_menu)
 
     def __stickify(self, row = 0, column = 0):
         """Auto resize the TK widget according to window size"""
