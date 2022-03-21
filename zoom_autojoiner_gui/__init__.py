@@ -1,3 +1,6 @@
+# Info
+__version__ = "0.3.0"
+
 import logging
 from datetime import datetime
 # from multiprocessing import Process
