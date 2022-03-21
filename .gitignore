@@ -27,6 +27,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Builded extensions
+/extensions/builded/
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -132,3 +135,9 @@ dmypy.json
 logs/
 *.docx
 database.db
+
+# Config files
+application.ini
+extensions.ini
+config/application.ini
+config/extensions.ini
