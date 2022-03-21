@@ -178,6 +178,24 @@ SectionGroup /e "Themes" SecGrpThemes
   SectionEnd
 SectionGroupEnd
 
+SectionGroup /e "Extensions" SecGrpExtensions
+    Section "Extensionfather" SecExtFatherExt
+	    SectionIn RO
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\extensionfather.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\extensionfather.py"
+    SectionEnd
+    Section "Updater" SecUpdaterExt
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\updater.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\updater.py"
+		File "/oname=$INSTDIR\gh_update.exe" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\gh_update.exe"
+    SectionEnd
+	{{#extensions}}
+	Section /o "{{{name}}}" Sec{{{codename}}}Ext
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\{{{codename}}}.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\{{{codename}}}.py"
+    SectionEnd
+	{{/extensions}}
+SectionGroupEnd
 
 Section "Configuration Tool" SecCfgTool
   SetOutPath "$INSTDIR"
@@ -206,16 +224,29 @@ SectionEnd
   LangString DESC_SecCoreFiles ${LANG_ENGLISH} "Installs ${APPNAME} on your system"
   LangString DESC_SecCfgTool ${LANG_ENGLISH} "Adds a simple configurarion tool to generate config files"
   LangString DESC_SecGrpThemes ${LANG_ENGLISH} "Themes for ${APPNAME}"
+  LangString DESC_SecGrpExtensions ${LANG_ENGLISH} "Extensions for ${APPNAME}"
   LangString DESC_SecLight ${LANG_ENGLISH} "Light theme for ${APPNAME}"
   LangString DESC_SecDark ${LANG_ENGLISH} "Dark theme for ${APPNAME}"
+  LangString DESC_SecExtFatherExt ${LANG_ENGLISH} "Extension Management"
+  LangString DESC_SecUpdaterExt ${LANG_ENGLISH} "Get Automatic Updates from GitHub"
+  ; automatic for extensions
+  {{#extensions}}
+  LangString DESC_Sec{{{codename}}}Ext ${LANG_ENGLISH} "{{{desc}}}"
+  {{/extensions}}
   ;LangString DESC_SecUpdater ${LANG_ENGLISH} "Installs the Update Daemon on your system to enable faster uptates using the AMSDC API."
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCoreFiles} $(DESC_SecCoreFiles)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCfgTool} $(DESC_SecCfgTool)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecGrpThemes} $(DESC_SecGrpThemes)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecGrpExtensions} $(DESC_SecGrpExtensions)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecLight} $(DESC_SecLight)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecDark} $(DESC_SecDark)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecExtFatherExt} $(DESC_SecExtFatherExt)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecUpdaterExt} $(DESC_SecUpdaterExt)
+	{{#extensions}}
+    !insertmacro MUI_DESCRIPTION_TEXT ${Sec{{{codename}}}Ext} $(DESC_Sec{{{codename}}}Ext)
+    {{/extensions}}
     ;!insertmacro MUI_DESCRIPTION_TEXT ${SecDummy2} $(DESC_SecDummy2)
     ;!insertmacro MUI_DESCRIPTION_TEXT ${SecUpdater} $(DESC_SecUpdater)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
