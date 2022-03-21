@@ -1,6 +1,7 @@
 import glob
 import os
 import sys
+import csv
 
 import chevron
 
@@ -8,7 +9,7 @@ if len(sys.argv) > 1:
     # vma = int(input("Enter major version: "))
     # vmi = int(input("Enter minor version: "))
     # vbd = int(input("Enter build version: "))
-    vma, vmi, vbd = 0, 1, 0
+    vma, vmi, vbd = 0, 3, 0
     if sys.argv[1]=="nsis":
         print("nsis generation")
         os.chdir("dist/ZoomAutojoinerGUI")
@@ -32,6 +33,12 @@ if len(sys.argv) > 1:
         
         spdel = [{"file_name": d}
                 for d in ["database.db","config_tool.exe"]]
+                
+        csvfh =  open("../../_extensions/extensions.csv", "r")
+        extensions = csv.DictReader(csvfh, fieldnames=('codename','name','desc'))
+        # for i in dr:
+            # print(i['codename'], i['name'], i['desc'])
+        
         variables = {
             "source_directory": os.getcwd(),
             "versionmajor": vma,
@@ -42,6 +49,7 @@ if len(sys.argv) > 1:
             "dirs": dirs,
             "spdirs": spdirs,
             "spdel": spdel,
+            "extensions": list(extensions),
             "icon_file": "ZoomAJIcon.ico",
             "launcher_exe": "ZoomAutojoinerGUI",
             "license_file": r"C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\LICENSE.txt"
@@ -51,8 +59,9 @@ if len(sys.argv) > 1:
 
         with open('../../InstallerScript.nsi.mustache', 'r') as f:
             of.write(chevron.render(f, variables))
-            
+
         of.close()
+        csvfh.close()
     elif sys.argv[1]=="vi":
         print("Version info generation")
         variables = {
