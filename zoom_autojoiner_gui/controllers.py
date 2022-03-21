@@ -13,10 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Zoom Autojoiner GUI.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import json
 import time
 import platform
 import logging
+import typing as t
 from datetime import datetime
 from typing import Any, Union
 
@@ -360,6 +362,11 @@ class ATLParser():
     pass
 
 
+class NoAutojoinerCallbackError(Exception):
+    def __init__(self, provider):
+        super().__init__("No autojoiner callback for: "+provider)
+
+
 class Autojoiner():
     """
     Autojoiner
@@ -374,17 +381,31 @@ class Autojoiner():
     Args:
         image_dir: The directory where images are stored.
     """
+    
+    #: dict: Autojoiner Handlers
+    autojoiner_handlers = {}
+
+    @classmethod
+    def register_autojoiner(cls, mtg_provider: str,
+                            callback: t.Callable) -> None:
+        """register_autojoiner
+
+        Register an autojoiner.
+        """
+        cls.autojoiner_handlers[mtg_provider] = callback
+    
     def __init__(self, image_dir: str = "") -> None:
         self.__dbh = DatabaseHandler(DB_URL) # dbh is DB handle
         self.IMG_DIR = image_dir # e.g /usr/share/
 
-    def get_image_path(self, filename: str) -> str:
-        """get_image_path 
+    def _get_image_path(self, filename: str) -> str:
+        """_get_image_path 
 
         Get the path to the image with correct slash for the OS.
 
         Note:
-            It will be more efficient if os.path.join is used instead.
+            Replaced by os.path.join, just left for backward
+            compatibility.
 
         Args:
             filename (str): The name of the file.
@@ -412,6 +433,19 @@ class Autojoiner():
         # Return the file directory.
         return img_directory + final_filename
 
+    def get_image_path(self, filename: str) -> str:
+        """get_image_path 
+
+        Get the path to the image with correct slash for the OS.
+
+        Args:
+            filename (str): The name of the file.
+
+        Returns:
+            str: The full directory path.
+        """
+        return os.path.join(self.IMG_DIR, filename)
+
     def check_for_meeting(self) -> Union[dict, bool]:
         """check_for_meeting 
         
@@ -437,12 +471,32 @@ class Autojoiner():
                 logger.debug("True")
                 return_str = True
                 return_dict = mtg_dict
+                # found a mtg so
+                break
             else:
                 logger.debug("False")
                 return_str = False
         
         logger.debug("Return Dict %s", str(return_dict))
         return return_dict if return_str else False
+
+    def join_mtg(self, mtg_provider: str, mtg_id: str,
+                 mtg_password: str) -> None:
+        """join_mtg
+
+        Joins a meeting
+
+        Args:
+            mtg_provider (str): Meeting provider
+            mtg_id (str): Meeting ID
+            mtg_password (str): Meeting Passcode
+        """
+        if mtg_provider == "ZM":
+            self.join_zm_mtg(mtg_id, mtg_password)
+        elif mtg_provider in self.autojoiner_handlers:
+            self.autojoiner_handlers[mtg_provider](mtg_id, mtg_password)
+        else:
+            raise NoAutojoinerCallbackError(mtg_provider)
 
     def join_zm_mtg(self, id: str, password: str) -> None:
         """join_zm_mtg
@@ -480,6 +534,7 @@ class Autojoiner():
             logger.error("Failed to join meeting", exc_info=True)
         else:
             logger.info("Joined Meeting successfully")
+            
 
 # Todo:
 # Finish theming class
