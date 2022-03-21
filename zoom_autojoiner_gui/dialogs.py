@@ -1,3 +1,18 @@
+# This file is part of Zoom Autojoiner GUI.
+
+# Zoom Autojoiner GUI is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# Zoom Autojoiner GUI is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with Zoom Autojoiner GUI.  If not, see <https://www.gnu.org/licenses/>.
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 import tkinter.font as tkFont
@@ -166,7 +181,7 @@ class EditMeetingDialog(tk.Toplevel):
 
         # Get values from DB
         try:
-            mtg_data = self.__dbh.get_single_mtg_data_to_list(self.record_id)
+            self.mtg_data = self.__dbh.get_single_mtg_data_to_list(self.record_id)
         except Exception as e:
             messagebox.showerror("Error", "An exception has occured.\nError Details:\n%s" % (str(e)))
             self.destroy()
@@ -204,7 +219,7 @@ class EditMeetingDialog(tk.Toplevel):
 
         # Meeting Time Entry
         self.DateTimeEntry=ttk.Entry(self)
-        self.DateTimeEntry.insert(0, mtg_data["mtg_time"])
+        self.DateTimeEntry.insert(0, self.mtg_data["mtg_time"])
         self.DateTimeEntry.place(x=110,y=40,width=220,height=30)
 
         # Meeting ID label
@@ -214,7 +229,7 @@ class EditMeetingDialog(tk.Toplevel):
 
         # Meeting ID entry
         self.MeetingIDEntry=ttk.Entry(self)
-        self.MeetingIDEntry.insert(0, mtg_data["mtg_id"])
+        self.MeetingIDEntry.insert(0, self.mtg_data["mtg_id"])
         self.MeetingIDEntry.place(x=110,y=80,width=220,height=30)
 
         # Meeting Passcode Label
@@ -224,7 +239,7 @@ class EditMeetingDialog(tk.Toplevel):
 
         # Meeting Password Entry
         self.MeetingPasscodeEntry=ttk.Entry(self)
-        self.MeetingPasscodeEntry.insert(0, mtg_data["mtg_password"])
+        self.MeetingPasscodeEntry.insert(0, self.mtg_data["mtg_password"])
         self.MeetingPasscodeEntry.place(x=110,y=120,width=220,height=30)
 
         # Update Meeting Button
@@ -258,8 +273,11 @@ class EditMeetingDialog(tk.Toplevel):
     def UpdateMtgButton_command(self):
         """Update meeting data."""
         try:
-            datetimeobj=datetime.datetime.strptime(self.DateTimeEntry.get(), "%Y-%m-%d %H:%M:%S")
-            self.__dbh.update_mtg(self.record_id, self.MeetingIDEntry.get(), self.MeetingPasscodeEntry.get(), datetimeobj)
+            datetimeobj=datetime.datetime.strptime(self.DateTimeEntry.get(),
+                                                   "%Y-%m-%d %H:%M:%S")
+            self.__dbh.update_mtg(self.record_id, self.MeetingIDEntry.get(),
+                                  self.MeetingPasscodeEntry.get(), datetimeobj,
+                                  self.mtg_data["mtg_provider"])
         except Exception as e:
             messagebox.showerror("Error", "An exception has occured.\nError Details:\n%s" % (str(e)))
         else:
