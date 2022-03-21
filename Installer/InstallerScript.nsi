@@ -16,7 +16,7 @@
   !define DESCRIPTION "To join Zoom Meetings quickly"
   # These three must be integers
   !define VERSIONMAJOR 0
-  !define VERSIONMINOR 1
+  !define VERSIONMINOR 3
   !define VERSIONBUILD 0
   !define HELPURL "https://advaithm582.github.io/" # "Support Information" link
   !define UPDATEURL "https://advaithm582.github.io/" # "Product Updates" link
@@ -156,6 +156,7 @@ Section "Core Files" SecCoreFiles
   File "/oname=$INSTDIR\api-ms-win-core-datetime-l1-1-0.dll" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\dist\ZoomAutojoinerGUI\api-ms-win-core-datetime-l1-1-0.dll"
   File "/oname=$INSTDIR\api-ms-win-core-debug-l1-1-0.dll" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\dist\ZoomAutojoinerGUI\api-ms-win-core-debug-l1-1-0.dll"
   File "/oname=$INSTDIR\api-ms-win-core-errorhandling-l1-1-0.dll" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\dist\ZoomAutojoinerGUI\api-ms-win-core-errorhandling-l1-1-0.dll"
+  File "/oname=$INSTDIR\api-ms-win-core-fibers-l1-1-0.dll" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\dist\ZoomAutojoinerGUI\api-ms-win-core-fibers-l1-1-0.dll"
   File "/oname=$INSTDIR\api-ms-win-core-file-l1-1-0.dll" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\dist\ZoomAutojoinerGUI\api-ms-win-core-file-l1-1-0.dll"
   File "/oname=$INSTDIR\api-ms-win-core-file-l1-2-0.dll" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\dist\ZoomAutojoinerGUI\api-ms-win-core-file-l1-2-0.dll"
   File "/oname=$INSTDIR\api-ms-win-core-file-l2-1-0.dll" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\Installer\dist\ZoomAutojoinerGUI\api-ms-win-core-file-l2-1-0.dll"
@@ -1224,6 +1225,34 @@ SectionGroup /e "Themes" SecGrpThemes
   SectionEnd
 SectionGroupEnd
 
+SectionGroup /e "Extensions" SecGrpExtensions
+    Section "Extensionfather" SecExtFatherExt
+	    SectionIn RO
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\extensionfather.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\extensionfather.py"
+    SectionEnd
+    Section "Updater" SecUpdaterExt
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\updater.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\updater.py"
+		File "/oname=$INSTDIR\gh_update.exe" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\gh_update.exe"
+    SectionEnd
+		Section /o "Google Meet Autojoiner Tool" Secgmeet_autojoinerExt
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\gmeet_autojoiner.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\gmeet_autojoiner.py"
+    SectionEnd
+		Section /o "Data Tools" SecdatatoolsExt
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\datatools.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\datatools.py"
+    SectionEnd
+		Section /o "Meeting List Frame" Secscrollable_frameExt
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\scrollable_frame.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\scrollable_frame.py"
+    SectionEnd
+		Section /o "Debugging Tools" Secdebugging_toolsExt
+        SetOutPath "$INSTDIR"
+        File "/oname=$INSTDIR\extensions\debugging_tools.py" "C:\Users\advai\OneDrive\Documents\Programmed tools\Autojoiner\extensions\debugging_tools.py"
+    SectionEnd
+	SectionGroupEnd
 
 Section "Configuration Tool" SecCfgTool
   SetOutPath "$INSTDIR"
@@ -1252,16 +1281,31 @@ SectionEnd
   LangString DESC_SecCoreFiles ${LANG_ENGLISH} "Installs ${APPNAME} on your system"
   LangString DESC_SecCfgTool ${LANG_ENGLISH} "Adds a simple configurarion tool to generate config files"
   LangString DESC_SecGrpThemes ${LANG_ENGLISH} "Themes for ${APPNAME}"
+  LangString DESC_SecGrpExtensions ${LANG_ENGLISH} "Extensions for ${APPNAME}"
   LangString DESC_SecLight ${LANG_ENGLISH} "Light theme for ${APPNAME}"
   LangString DESC_SecDark ${LANG_ENGLISH} "Dark theme for ${APPNAME}"
+  LangString DESC_SecExtFatherExt ${LANG_ENGLISH} "Extension Management"
+  LangString DESC_SecUpdaterExt ${LANG_ENGLISH} "Get Automatic Updates from GitHub"
+  ; automatic for extensions
+  LangString DESC_Secgmeet_autojoinerExt ${LANG_ENGLISH} "Registers an autojoiner for Google Meet, as well as menu item for adding GMeetings."
+  LangString DESC_SecdatatoolsExt ${LANG_ENGLISH} "Tool to delete/export/clear/refresh data"
+  LangString DESC_Secscrollable_frameExt ${LANG_ENGLISH} "If you have a long list of meetings that exceed the screen, this adds a scrollbar to the list."
+  LangString DESC_Secdebugging_toolsExt ${LANG_ENGLISH} "Gives access to STDOUT, STDERR and code execution using eval and exec"
   ;LangString DESC_SecUpdater ${LANG_ENGLISH} "Installs the Update Daemon on your system to enable faster uptates using the AMSDC API."
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCoreFiles} $(DESC_SecCoreFiles)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCfgTool} $(DESC_SecCfgTool)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecGrpThemes} $(DESC_SecGrpThemes)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecGrpExtensions} $(DESC_SecGrpExtensions)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecLight} $(DESC_SecLight)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecDark} $(DESC_SecDark)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecExtFatherExt} $(DESC_SecExtFatherExt)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecUpdaterExt} $(DESC_SecUpdaterExt)
+	    !insertmacro MUI_DESCRIPTION_TEXT ${Secgmeet_autojoinerExt} $(DESC_Secgmeet_autojoinerExt)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecdatatoolsExt} $(DESC_SecdatatoolsExt)
+    !insertmacro MUI_DESCRIPTION_TEXT ${Secscrollable_frameExt} $(DESC_Secscrollable_frameExt)
+    !insertmacro MUI_DESCRIPTION_TEXT ${Secdebugging_toolsExt} $(DESC_Secdebugging_toolsExt)
     ;!insertmacro MUI_DESCRIPTION_TEXT ${SecDummy2} $(DESC_SecDummy2)
     ;!insertmacro MUI_DESCRIPTION_TEXT ${SecUpdater} $(DESC_SecUpdater)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
@@ -1285,6 +1329,7 @@ Section "Uninstall"
   Delete "$INSTDIR\api-ms-win-core-datetime-l1-1-0.dll"
   Delete "$INSTDIR\api-ms-win-core-debug-l1-1-0.dll"
   Delete "$INSTDIR\api-ms-win-core-errorhandling-l1-1-0.dll"
+  Delete "$INSTDIR\api-ms-win-core-fibers-l1-1-0.dll"
   Delete "$INSTDIR\api-ms-win-core-file-l1-1-0.dll"
   Delete "$INSTDIR\api-ms-win-core-file-l1-2-0.dll"
   Delete "$INSTDIR\api-ms-win-core-file-l2-1-0.dll"
