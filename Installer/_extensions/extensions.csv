@@ -1,0 +1,4 @@
+gmeet_autojoiner,Google Meet Autojoiner Tool,"Registers an autojoiner for Google Meet, as well as menu item for adding GMeetings."
+datatools,Data Tools,Tool to delete/export/clear/refresh data
+scrollable_frame,Meeting List Frame,"If you have a long list of meetings that exceed the screen, this adds a scrollbar to the list."
+debugging_tools,Debugging Tools,"Gives access to STDOUT, STDERR and code execution using eval and exec"
