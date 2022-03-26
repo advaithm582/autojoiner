@@ -168,3 +168,4 @@ def main():
     ext_api.register_autojoiner_callback(mtg_provider="GMEET",
                                      callback=autojoiner_cb)
 
+ext_api.add_event_listener("application_loaded", main)
