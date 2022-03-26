@@ -38,9 +38,20 @@ logger = logging.getLogger(__name__) # This creates logger for this file.
 enabled = EXTENSIONS.getboolean("enabled")
 
 
+class NoSuchEventError(Exception):
+    def __init__(self, evt):
+        super().__init__("There is no such event for which handlers "
+                         "can be registered - " + evt)
+
+
+class NoEventHandlerError(Exception):
+    def __init__(self, evt):
+        super().__init__("There is no event handler for the event " + evt)
+
+
 class ExtensionHandler():
     """ExtensionHandler
-
+    
     This class deals with the handling of ZAJ
     Python Extensions. 
 
@@ -125,7 +136,8 @@ class ExtensionHandler():
         """
         all_ext_ran = True
 
-        sys.path.insert(0, self.extensions_dir)
+        # sys.path.insert(0, self.extensions_dir)
+        sys.path.append(self.extensions_dir) # can't override builtins
 
         for extension in self.get_ext():
             try:
@@ -244,7 +256,8 @@ class ExtensionHandler():
                 all_ext_ran = False
 
         return all_ext_ran
-    
+
+
 class ExtensionAPI():
     """ExtensionAPI
     
@@ -265,8 +278,18 @@ class ExtensionAPI():
     #: list: Menus to be registered
     reg_menus = []
 
-    #: dict: Registered autojoiners
-    # reg_autojoiners = {}
+    #: tuple: Available event listeners
+    event_listeners = (
+        "test", # test
+        "application_loaded", # Completed application loading
+        "add_meeting", # Add Meeting 
+        "edit_meeting", # Edit a Meeting (arg: Record ID)
+        "join_meeting", # Join a meeting
+        "no_autojoiner_callback_error", # no callback registered
+        )
+    
+    #: dict: Registered event listeners
+    reg_eventlisteners = {k: [] for k in event_listeners}
     
     def __init__(self, codename: str, name: str, ver: str = "1.0") -> None:
         self.ext_codename = codename
@@ -274,19 +297,98 @@ class ExtensionAPI():
         self.ext_ver = ver
 
     def register_menu(self, menu: tk.Menu) -> None:
+        """register_menu 
+        
+        Register an autojoiner menu. This will appear under a dropdown
+        'Extensions' in the menubar, with a further dropdown entry, 
+        with the name of the extension as a label.
+        
+        Note:
+            The menus will be stored in a queue. Registration is 
+            performed only once the core application is initialised.
+
+        Args:
+            menu (tk.Menu): The Menu object.
+        """
         self.reg_menus.append((self.ext_name, menu))
 
     def register_autojoiner_callback(self, mtg_provider: str,
                                      callback: t.Callable) -> None:
-        """register_autojoiner_callback
+        """register_autojoiner_callback 
+        
+        Register an autojoiner callback
 
-        Register an autojoiner callback with the system.
+        Args:
+            mtg_provider (str): 
+                The Meeting provider. N.B. ZM cannot be overrided as
+                of now.
+            callback (t.Callable): The Callback
         """
         # self.reg_autojoiners[mtg_provider] = callback
         Autojoiner.register_autojoiner(mtg_provider, callback)
+        
+    def add_event_listener(self, event: str, 
+                           callback: t.Callable) -> None:
+        """add_event_listener 
+        
+        Register an event listener
+
+        Args:
+            event (str): 
+                The Event.
+            callback (t.Callable): The Callback
+        """
+        event_hdlrs = self.reg_eventlisteners.get(event)
+        
+        if event not in self.event_listeners or event_hdlrs == None:
+            raise NoSuchEventError(event)
+        else:
+            event_hdlrs.append(callback)
+    
+    @classmethod
+    def event_occured(cls, event: str, onlydefault: bool = False, 
+                      args: list = [], kwds: dict = {}) -> None:
+        """event_occured 
+        
+        Call the event listeners for an event.
+
+        Args:
+            event (str): The Event name
+            onlydefault (bool, optional): 
+                Call only the first event listener. Defaults to False.
+            args (list, optional): 
+                Positional arguments to pass to the event listener. 
+                Defaults to [].
+            kwds (dict, optional): 
+                Keyword arguments to pass to the event listener. 
+                Defaults to {}.
+        """
+        event_hdlrs = cls.reg_eventlisteners.get(event)
+        
+        if event not in cls.event_listeners or event_hdlrs == None:
+            raise NoSuchEventError(event)
+        else:
+            if onlydefault:
+                if len(event_hdlrs) == 0:
+                    raise NoEventHandlerError(event)
+                else:
+                    event_hdlrs[0].__call__(*args, **kwds)
+            else:
+                for func in event_hdlrs:
+                    func.__call__(*args, **kwds)
 
     @classmethod
     def set_ext_menu(cls, menu: tk.Menu) -> None:
+        """set_ext_menu 
+        
+        Internal method - Used to set the menu for the `register_menu`
+        command.
+        
+        DO NOT CALL THIS METHOD FROM YOUR EXTENSION.
+
+        Args:
+            menu (tk.Menu): _description_
+        """
         cls.ext_menu = menu
 
     @classmethod
@@ -294,6 +396,8 @@ class ExtensionAPI():
         """internal_tkreg_menus
 
         Internally used to register method with Tk Menu.
+        
+        DO NOT CALL THIS METHOD FROM YOUR EXTENSION.
         """
         for label, menu in cls.reg_menus:
             cls.ext_menu.add_cascade(label=label, menu=menu)
@@ -302,6 +406,21 @@ class ExtensionAPI():
     def internal_set_tkobj(cls, main_window: tk.Tk = None, 
             menu_bar: tk.Menu = None, 
             meeting_list_frame: tk.Frame = None) -> None:
+        """internal_set_tkobj 
+        
+        Internal method to set the TK Objects. These are forwarded to 
+        attributes
+        
+        DO NOT CALL THIS METHOD FROM YOUR EXTENSION.
+
+        Args:
+            main_window (tk.Tk, optional): 
+                The Main Window object. Defaults to None.
+            menu_bar (tk.Menu, optional): 
+                The Menubar. Defaults to None.
+            meeting_list_frame (tk.Frame, optional): 
+                Meeting List Frame. Defaults to None.
+        """
         cls.main_window = main_window
         cls.menu_bar = menu_bar
         cls.meeting_list_frame = meeting_list_frame

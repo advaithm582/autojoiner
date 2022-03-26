@@ -28,6 +28,12 @@ def main():
     mnu.add_command(label="List All Extensions", command=list_extensions)
     mnu.add_command(label="Add Extensions", command=add_extensions)
     ext_api.register_menu(mnu)
+    
+def error_no_callback(error):
+    messagebox.showerror("Error", "There is no Autojoiner registered for "
+                                  "this meeting provider. Please install and"
+                                  " enable the extension which has the"
+                                  " required functionality.")
 
 def list_extensions():
     exts = [obj for obj in gc.get_objects() if isinstance(obj, ExtensionAPI)]
@@ -49,4 +55,5 @@ def add_extensions():
 
     messagebox.showinfo("Extension Added", "Extension Added")
 
-    
+ext_api.add_event_listener("application_loaded", main)
+ext_api.add_event_listener("no_autojoiner_callback_error", error_no_callback)

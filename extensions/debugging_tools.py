@@ -119,3 +119,5 @@ def exec_code_single():
 def eval_code():
     eval(simpledialog.askstring("Enter code",
                                    "Enter single line of code:"))
+
+ext_api.add_event_listener("application_loaded", main)

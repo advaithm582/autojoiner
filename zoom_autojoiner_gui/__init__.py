@@ -39,12 +39,22 @@ def load_window():
     window.mainloop()
 
 
+def load_extensions():
+    global exthdlr
+    exthdlr = ExtensionHandler(EXTENSIONS)
+    exthdlr.load_extensions()
+
+
 def main():
     """
     Main Function
     
     Inspired by C/C++ main() function, that looks neat
     """
+    # Extension loading
+    if EXTENSIONS.getboolean("enabled"):
+        load_extensions()
+    
     try:
         # logger.info('Attempting to initialise High DPI awareness') # Don't clutter the log
         from ctypes import windll
@@ -64,6 +74,7 @@ def main():
     except:
         pass
         # logger.critical("Failed to start child process!!!", exc_info=True)
+        
     
 if __name__ == "__main__":
     main()

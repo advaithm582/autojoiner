@@ -79,3 +79,5 @@ def import_data():
 def overwrite_data():
     clear_data()
     import_data()
+
+ext_api.add_event_listener("application_loaded", main)

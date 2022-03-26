@@ -72,3 +72,5 @@ def main():
     data = tk.Menu(ext_api.ext_menu, tearoff = "off")
     data.add_command(label="Meeting List", command=launch_window)
     ext_api.register_menu(data)
+
+ext_api.add_event_listener("application_loaded", main)
