@@ -32,7 +32,8 @@ from zoom_autojoiner_gui.constants import (
 from zoom_autojoiner_gui.controllers import (
     TkinterTheme,
     DatabaseHandler,
-    Autojoiner
+    Autojoiner,
+    NoAutojoinerCallbackError
 )
 from zoom_autojoiner_gui.dialogs import (
     NewMeetingDialog,
@@ -235,6 +236,25 @@ class MeetingListFrame(tk.Frame):
         # Should only stick vertically.
         # tk.Grid.rowconfigure(self, row, weight=1)
         tk.Grid.columnconfigure(self, column, weight=1)
+        
+    # Tools
+        
+    def __tool_join_mtg(self, pr: str, mid: str, pw: str) -> None:
+        """__tool_join_mtg 
+        
+        Join a meeting. Internal use only.
+
+        Args:
+            pr (str): Meeting provider
+            mid (str): Meeting id
+            pw (str): Meeting password
+        """
+        try:
+            self.__autojoiner_handle.join_mtg(pr, mid, pw)
+        except NoAutojoinerCallbackError as e:
+            ExtensionAPI.event_occured("no_autojoiner_callback_error", args=[e])
+    
+    # Wrappers
 
     def create_ttk_button(self, text: str, row: int = 0, column: int = 0,
             command: Callable = None, sticky: str = N+S+E+W,
@@ -341,8 +361,8 @@ class MeetingListFrame(tk.Frame):
         self.create_tk_label(meeting_id, row=row_no, column=1, **styling)
         self.create_tk_label(meeting_password, row=row_no, column=2, **styling)
         self.create_ttk_button("Join meeting", row=row_no, column=3, 
-            command=lambda: self.__autojoiner_handle.join_mtg(meeting_provider,
-                meeting_id, meeting_password))
+            command=lambda: self.__tool_join_mtg(meeting_provider, meeting_id,
+                                                 meeting_password))
         self.create_ttk_button("Edit/Delete meeting", row=row_no, column=4, 
             command=lambda: EditMeetingDialog(record_id, tk_root_element = \
                 self.root_element, tk_frame_handle=self))
@@ -507,14 +527,16 @@ class MainWindow(tk.Tk):
             ExtensionAPI.set_ext_menu(ext_menu)
             ExtensionAPI.internal_set_tkobj(self, self.__menu_bar,
                     self.__meeting_list_frame)
+            
+            ExtensionAPI.event_occured("application_loaded")
 
             # OLD API
-            self.__ext_class = ExtensionHandler(EXTENSIONS)
-            if self.__ext_class.load_extensions():
-                self.__ext_class.give_extensions_prefs()
-                self.__ext_class.give_extensions_objects(self, self.__menu_bar,
-                    self.__meeting_list_frame)
-                self.__ext_class.run_extensions()
+            # self.__ext_class = ExtensionHandler(EXTENSIONS)
+            # if self.__ext_class.load_extensions():
+            #     self.__ext_class.give_extensions_prefs()
+            #     self.__ext_class.give_extensions_objects(self, self.__menu_bar,
+            #         self.__meeting_list_frame)
+            #     self.__ext_class.run_extensions()
 
             # New API
             ExtensionAPI.internal_tkreg_menus()
