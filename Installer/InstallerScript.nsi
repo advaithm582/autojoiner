@@ -16,7 +16,7 @@
   !define DESCRIPTION "To join Zoom Meetings quickly"
   # These three must be integers
   !define VERSIONMAJOR 0
-  !define VERSIONMINOR 3
+  !define VERSIONMINOR 4
   !define VERSIONBUILD 0
   !define HELPURL "https://advaithm582.github.io/" # "Support Information" link
   !define UPDATEURL "https://advaithm582.github.io/" # "Product Updates" link
