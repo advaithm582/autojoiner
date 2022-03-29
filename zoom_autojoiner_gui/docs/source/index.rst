@@ -7,10 +7,12 @@ Welcome to Zoom Autojoiner's documentation!
 ===========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    quickstart
+   api_docs
+   Module Docs <modules>
 
 
 
