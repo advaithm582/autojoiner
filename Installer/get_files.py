@@ -9,7 +9,7 @@ if len(sys.argv) > 1:
     # vma = int(input("Enter major version: "))
     # vmi = int(input("Enter minor version: "))
     # vbd = int(input("Enter build version: "))
-    vma, vmi, vbd = 0, 4, 1
+    vma, vmi, vbd = 0, 4, 2
     if sys.argv[1]=="nsis":
         print("nsis generation")
         os.chdir("dist/ZoomAutojoinerGUI")
