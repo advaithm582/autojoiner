@@ -38,43 +38,45 @@ def export_data():
                     ("JSON files", "*.json"),
                     ("All files", "*.*"),
                 ))
-    try:
-        with open(filename, "w") as fh:
-            ddump = [{
-                    "id" : record["id"],
-                    "mtg_provider" : record["mtg_provider"], 
-                    "mtg_id" : record["mtg_id"], 
-                    "mtg_password" : record["mtg_password"],
-                    "mtg_time": record["mtg_time"].strftime("%Y-%m-%d %H:%M:%S") 
-                } for record in dbh.get_mtg_data_to_list()]
-            json.dump(ddump, fh)
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-    else:
-        messagebox.showinfo("Success", "Data Exported")
+    if filename:
+        try:
+            with open(filename, "w") as fh:
+                ddump = [{
+                        "id" : record["id"],
+                        "mtg_provider" : record["mtg_provider"], 
+                        "mtg_id" : record["mtg_id"], 
+                        "mtg_password" : record["mtg_password"],
+                        "mtg_time": record["mtg_time"].strftime("%Y-%m-%d %H:%M:%S") 
+                    } for record in dbh.get_mtg_data_to_list()]
+                json.dump(ddump, fh)
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+        else:
+            messagebox.showinfo("Success", "Data Exported")
         
 def import_data():
     filename = filedialog.askopenfilename(filetypes=(
                     ("JSON files", "*.json"),
                     ("All files", "*.*"),
                 ))
-    try:
-        with open(filename, "r") as fh:
-            mtgdata_ = json.load(fh)
-            mtgdata = [{
-                    "id" : record["id"],
-                    "mtg_provider" : record["mtg_provider"], 
-                    "mtg_id" : record["mtg_id"], 
-                    "mtg_password" : record["mtg_password"],
-                    "mtg_time": datetime.datetime.strptime(record["mtg_time"], "%Y-%m-%d %H:%M:%S") 
-                } for record in mtgdata_]
-            for mtg in mtgdata:
-                dbh.add_mtg(mtg["mtg_id"], mtg["mtg_password"], mtg["mtg_time"], mtg["mtg_provider"])
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-    else:
-        messagebox.showinfo("Success", "Data Imported")
-        refresh_data()
+    if filename:
+        try:
+            with open(filename, "r") as fh:
+                mtgdata_ = json.load(fh)
+                mtgdata = [{
+                        "id" : record["id"],
+                        "mtg_provider" : record["mtg_provider"], 
+                        "mtg_id" : record["mtg_id"], 
+                        "mtg_password" : record["mtg_password"],
+                        "mtg_time": datetime.datetime.strptime(record["mtg_time"], "%Y-%m-%d %H:%M:%S") 
+                    } for record in mtgdata_]
+                for mtg in mtgdata:
+                    dbh.add_mtg(mtg["mtg_id"], mtg["mtg_password"], mtg["mtg_time"], mtg["mtg_provider"])
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+        else:
+            messagebox.showinfo("Success", "Data Imported")
+            refresh_data()
         
 def overwrite_data():
     clear_data()
