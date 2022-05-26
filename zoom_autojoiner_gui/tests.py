@@ -25,7 +25,7 @@ class ExtensionClassTestCase(unittest.TestCase):
             # Nobody names an event after a person,
             # hence it is better than putting something like
             # 'fail' or 'testfail' or 'abc' etc.
-            self.ext.add_event_listener("kavitha", cb)
+            self.ext.add_event_listener("john", cb)
         except Exception as e:
             self.assertIsInstance(e, 
                 zoom_autojoiner_gui.extensions.NoSuchEventError)
