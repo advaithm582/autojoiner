@@ -2,6 +2,9 @@
 
 This program is to aid in automatically joining Zoom Meetings.
 
+### ⚠️ WARNING ⚠️: This Program is no longer maintained. Use at your own risk. 
+### The archive of installers can be found here: [ZOHO WORKDRIVE](https://workdrive.zohopublic.in/folder/gc2944a6c06e96e4543f3b55066196a4bd566), latest version `0.4.3`
+
 ## Goals:
 * To serve as a meeting notice board
 * To remind that it is time to join a meeting
